@@ -69,7 +69,7 @@ def getVideoIDs():
             page_token = 0
 
     # write videos ids as parquet file
-    pl.DataFrame(video_record_list).write_parquet("app/data/video-ids.parquet")
+    pl.DataFrame(video_record_list).write_parquet("data/video-ids.parquet")
 
 
 def extractTranscriptText(transcript: list) -> str:
@@ -86,13 +86,13 @@ def extractTranscriptText(transcript: list) -> str:
 
 def getVideoTranscripts():
     """
-    Function to extract transcripts for all video IDs stored in "app/data/video-ids.parquet"
+    Function to extract transcripts for all video IDs stored in "data/video-ids.parquet"
 
     Dependencies:
         - extractTranscriptText()
     """
 
-    df = pl.read_parquet("app/data/video-ids.parquet")
+    df = pl.read_parquet("data/video-ids.parquet")
 
     transcript_text_list = []
 
@@ -112,7 +112,7 @@ def getVideoTranscripts():
         pl.Series(name="transcript", values=transcript_text_list))
 
     # write dataframe to file
-    df.write_parquet("app/data/video-transcripts.parquet")
+    df.write_parquet("data/video-transcripts.parquet")
 
 
 def handleSpecialStrings(
@@ -166,12 +166,12 @@ def transformData():
         - setDatatypes()
     """
 
-    df = pl.read_parquet("app/data/video-transcripts.parquet")
+    df = pl.read_parquet("data/video-transcripts.parquet")
 
     df = handleSpecialStrings(df)
     df = setDatatypes(df)
 
-    df.write_parquet("app/data/video-transcripts.parquet")
+    df.write_parquet("data/video-transcripts.parquet")
 
 
 def createTextEmbeddings():
@@ -180,10 +180,10 @@ def createTextEmbeddings():
     """
 
     # read data from file
-    df = pl.read_parquet("app/data/video-transcripts.parquet")
+    df = pl.read_parquet("data/video-transcripts.parquet")
 
     # define embedding model and columns to embed
-    # model_path = 'app/data/all-MiniLM-L6-v2'
+    # model_path = 'data/all-MiniLM-L6-v2'
     # model = SentenceTransformer(model_path)
     model = SentenceTransformer("all-MiniLM-L6-v2")
 
@@ -204,4 +204,4 @@ def createTextEmbeddings():
         df = pl.concat([df, df_embedding], how="horizontal")
 
     # write data to file
-    df.write_parquet("app/data/video-index.parquet")
+    df.write_parquet("data/video-index.parquet")
